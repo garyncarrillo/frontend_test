@@ -1,10 +1,10 @@
 import React from 'react';
 import { Navigate, Route } from 'react-router-dom';
+import { getAccessToken } from './libs/user';
 
 const PrivateRoute = ({ children }) => {
     const isAuthenticated = () => {
-        // return localStorage.getItem('user') ? true : false;
-        return true;
+        return  getAccessToken() ? true : false;
     };
 
     return isAuthenticated() ? children : <Navigate to="/sign_in" />;
