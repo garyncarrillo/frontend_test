@@ -4,6 +4,8 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import styled from '@emotion/styled';
 
 import Alert from '../Alert';
+import { SignUp } from "../../controllers/users";
+import { useNavigate } from 'react-router-dom';
 
 // Crear componentes estilizados
 const StyledBox = styled(Box)({
@@ -41,6 +43,7 @@ const Register = () => {
     message: "",
     variant: "success",
   });
+  const navigate = useNavigate();
 
   const displaySnackBar = (message, variant) => {
     setSnackBarOpts({ message, variant, isOpen: true });
@@ -66,13 +69,20 @@ const Register = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async(event) => {
     event.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       displaySnackBar("Las contraseñas no coinciden", "error");
       return;
     }
     console.log("Registrado", formData);
+    const response  = await SignUp(formData.email, formData.password);
+    if (response.status) {
+      navigate('/')
+    } else {
+      displaySnackBar("No fue posible registrarte", "error");
+      return;
+    }
   };
 
   const passwordValidationTooltip = (

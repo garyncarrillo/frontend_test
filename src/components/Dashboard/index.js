@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton, Switch, FormControlLabel
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+
+import Alert from '../Alert';
+
+import { CreateProduct, UpdateProduct, DeleteProduct, getAllProduct} from '../../controllers/products';
+import { SignOut } from '../../controllers/users';
+import { useNavigate } from 'react-router-dom';
 
 const initialProduct = { id: null, name: '', price: '', description: '', is_active: true };
 
@@ -11,6 +17,35 @@ function Dashboard() {
   const [products, setProducts] = useState([]);
   const [open, setOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(initialProduct);
+  const [snackBarOpts, setSnackBarOpts] = useState({
+    isOpen: false,
+    message: "",
+    variant: "success",
+  });
+  const navigate = useNavigate();
+
+
+  const fetchAllProduct = async() => {
+    const response = await getAllProduct();
+
+    if (response.status) {
+      setProducts(response.data)
+    } else {
+      setProducts([])
+    }
+  }
+
+  useEffect(() => {
+    fetchAllProduct()
+  }, [])
+
+  const displaySnackBar = (message, variant) => {
+    setSnackBarOpts({ message, variant, isOpen: true });
+  };
+
+  const closeSnackBar = () => {
+    setSnackBarOpts(prev => ({ ...prev, message: "", isOpen: false }));
+  };
 
   const handleClickOpen = (product) => {
     setCurrentProduct(product);
@@ -31,29 +66,62 @@ function Dashboard() {
     setCurrentProduct({ ...currentProduct, [event.target.name]: event.target.checked });
   };
 
-  const handleSave = () => {
+  const handleSave = async() => {
     if (currentProduct.id) {
       // Update product
       const updatedProducts = products.map((product) =>
         product.id === currentProduct.id ? currentProduct : product
       );
-      setProducts(updatedProducts);
+
+      const response = await UpdateProduct(currentProduct.id, currentProduct.name, currentProduct.description, currentProduct.price, currentProduct.is_active)
+ 
+      if (response.status) {
+        setProducts(updatedProducts);
+      }  else {
+        displaySnackBar("No fue posible actualizar el producto", "error");
+        return;
+      }
+      
     } else {
       // Add product
-      const newProduct = { ...currentProduct, id: products.length + 1 };
-      setProducts([...products, newProduct]);
+      const response = await CreateProduct(currentProduct.name, currentProduct.description, currentProduct.price, currentProduct.is_active)
+
+      if (response.status) {
+        const newProduct = { ...currentProduct, id: response.data.id};
+        setProducts([...products, newProduct]);
+      } else {
+        displaySnackBar("No fue posible crear un nuevo producto", "error");
+        return;
+      }
     }
     handleClose();
   };
 
-  const handleDelete = (productId) => {
-    setProducts(products.filter(product => product.id !== productId));
+  const handleDelete = async(productId) => {
+    const response  = await DeleteProduct(productId);
+
+    if (response.status) {
+      setProducts(products.filter(product => product.id !== productId));
+    } else {
+      displaySnackBar("No fue posible eliminar el producto", "error");
+      return;
+    }
   };
+
+
+  const logout = () => {
+    SignOut();
+    navigate('/');
+  }
 
   return (
     <>
       <Button variant="contained" onClick={() => handleClickOpen(initialProduct)} sx={{ bgcolor: '#4267B2', '&:hover': { bgcolor: '#365899' } }}>
         Add Product
+      </Button>
+
+      <Button variant="contained" onClick={logout} sx={{ bgcolor: '#4267B2', '&:hover': { bgcolor: '#365899' } }}>
+        Cerrar Session
       </Button>
       <TableContainer component={Paper}>
         <Table>
@@ -88,6 +156,13 @@ function Dashboard() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Alert
+        handleClose={closeSnackBar}
+        open={snackBarOpts.isOpen}
+        message={snackBarOpts.message}
+        variant={snackBarOpts.variant}
+      />
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{currentProduct.id ? 'Edit Product' : 'Add Product'}</DialogTitle>
