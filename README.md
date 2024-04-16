@@ -1,4 +1,5 @@
 # Node version
+
 20.11.1
 
 # Getting Started with Create React App
@@ -71,3 +72,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+# API URL BACKEND
+
+- add file .env
+- create the variables as shown in the .env.example file with the corresponding url
