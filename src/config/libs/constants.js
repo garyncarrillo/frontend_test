@@ -1,0 +1,1 @@
+export const AUTH_TOKEN = "FRONTEND_AUTH_TOKEN";
