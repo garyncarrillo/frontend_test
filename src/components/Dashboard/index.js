@@ -115,8 +115,8 @@ function Dashboard() {
   }
 
   return (
-    <>
-      <Button variant="contained" onClick={() => handleClickOpen(initialProduct)} sx={{ bgcolor: '#4267B2', '&:hover': { bgcolor: '#365899' } }}>
+    <div style={{ marginTop: "20px"}}>
+      <Button style={{ marginRight: "20px"}}variant="contained" onClick={() => handleClickOpen(initialProduct)} sx={{ bgcolor: '#4267B2', '&:hover': { bgcolor: '#365899' } }}>
         Add Product
       </Button>
 
@@ -218,7 +218,7 @@ function Dashboard() {
           <Button onClick={handleSave} sx={{ bgcolor: '#4267B2', '&:hover': { bgcolor: '#365899' } }}>Save</Button>
         </DialogActions>
       </Dialog>
-    </>
+    </div>
   );
 }
 
